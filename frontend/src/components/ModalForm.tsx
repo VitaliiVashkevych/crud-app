@@ -18,13 +18,19 @@ export default function ModalForm({ isOpen, onClose, onSubmit, mode }: Props) {
     setStatus(e.target.value === "Active");
   };
 
+  const handleSubmit = (e) => {
+    console.log(e.target);
+    
+    e.preventDefault();
+    onClose();
+  }
   return (
-    <dialog id="my_modal_3" className="modal" open={isOpen}>
+    <dialog id="my_modal_3" className="modal" open={isOpen} >
       <div className="modal-box">
         <h3 className="font-bold text-lg py-4">
           {mode === "edit" ? "Edit User" : "New User"}
         </h3>
-        <form method="dialog" onSubmit={onClose} className="gap-4 flex flex-col">
+        <form method="dialog" onSubmit={onClose} className="gap-4 flex flex-col" onSubmitCapture={handleSubmit}>
           <label className="input input-bordered flex items-center gap-2 w-full">
             Name
             <input
