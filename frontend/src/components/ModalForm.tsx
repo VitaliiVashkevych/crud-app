@@ -1,36 +1,70 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { User } from "../types/User";
 
 type Props = {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: () => void;
-  mode: "add" | "edit";
+  modalMode: "add" | "edit";
+  isModalOpen: boolean;
+  closeModal: () => void;
+  onSubmit: (userData: User) => void;
+  userData: User | undefined;
 };
 
-export default function ModalForm({ isOpen, onClose, onSubmit, mode }: Props) {
-  const [rate, setRate] = useState("");
+export const ModalForm: React.FC<Props> = ({
+  modalMode,
+  isModalOpen,
+  closeModal,
+  onSubmit,
+  userData,
+}) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [job, setJob] = useState("");
-  const [status, setStatus] = useState(false);
+  const [rate, setRate] = useState("");
+  const [isactive, setIsactive] = useState(false);
 
-  const handleStatusChange = (e) => {
-    setStatus(e.target.value === "Active");
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setIsactive(e.target.value === "Active");
   };
 
-  const handleSubmit = (e) => {
-    console.log(e.target);
-    
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onClose();
-  }
+    
+    try {
+      const userData = { name, email, job, rate, isactive };
+      await onSubmit(userData);
+      closeModal();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (modalMode === "edit" && userData) {
+      setName(userData.name);
+      setEmail(userData.email);
+      setJob(userData.job);
+      setRate(userData.rate);
+      setIsactive(userData.isactive);
+    } else {
+      setName("");
+      setEmail("");
+      setJob("");
+      setRate("");
+      setIsactive(false);
+    }
+  }, [modalMode, userData]);
+
   return (
-    <dialog id="my_modal_3" className="modal" open={isOpen} >
+    <dialog id="my_modal_3" className="modal" open={isModalOpen}>
       <div className="modal-box">
         <h3 className="font-bold text-lg py-4">
-          {mode === "edit" ? "Edit User" : "New User"}
+          {modalMode === "edit" ? "Edit User" : "New User"}
         </h3>
-        <form method="dialog" onSubmit={onClose} className="gap-4 flex flex-col" onSubmitCapture={handleSubmit}>
+        <form
+          method="dialog"
+          className="gap-4 flex flex-col"
+          onSubmit={handleSubmit}
+        >
           <label className="input input-bordered flex items-center gap-2 w-full">
             Name
             <input
@@ -70,21 +104,27 @@ export default function ModalForm({ isOpen, onClose, onSubmit, mode }: Props) {
               />
             </label>
 
-            <select className="select" defaultChecked>
-              <option>Select status</option>
-              <option value={"Inactive"}>Inactive</option>
-              <option value={"Active"}>Active</option>
+            <select
+              className="select"
+              value={isactive ? "Active" : "Inactive"}
+              onChange={handleStatusChange}
+            >
+              <option>Inactive</option>
+              <option>Active</option>
             </select>
           </div>
 
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+          <button
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+            onClick={closeModal}
+          >
             ✕
           </button>
           <button className="btn btn-success">
-            {mode === "edit" ? "Save changes" : "Add User"}
+            {modalMode === "edit" ? "Save changes" : "Add User"}
           </button>
         </form>
       </div>
     </dialog>
   );
-}
+};

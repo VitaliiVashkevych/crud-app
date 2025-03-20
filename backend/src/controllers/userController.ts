@@ -27,8 +27,8 @@ export const updateUser = async (req: Request, res: Response) => {
     const userId = req.params.id;
     const userData = req.body;
 
-    await userService.updateUser(userData, userId);
-    res.status(200).json({ message: "Updated successfully!" });
+    const updatedUser = await userService.updateUser(userData, userId);
+    res.status(200).json(updatedUser);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -48,10 +48,10 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const searchUsers = async (req: Request, res: Response) => {
   try {
-    const searchTerm = req.query.q;
+    const searchTerm = typeof req.query.q === "string" ? req.query.q : "";
     const users = await userService.searchUsers(searchTerm);
     console.log(searchTerm);
-    
+
     res.status(200).json(users);
   } catch (error) {
     console.error(error);
