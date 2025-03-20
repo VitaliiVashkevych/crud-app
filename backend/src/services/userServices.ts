@@ -25,6 +25,18 @@ export const updateUser = async (userData, userId) => {
 };
 
 export const deleteUser = async (id: string) => {
-  const { rows } = await query(`DELETE FROM users WHERE id = ${id}`);
+  const { rowCount } = await query(`DELETE FROM users WHERE id = ${id}`);
+
+  if (rowCount) {
+    return true;
+  }
+
+  return false;
+};
+
+export const searchUsers = async (searchTerm) => {
+  const { rows } = await query(
+    `SELECT * FROM users WHERE name ILIKE '%${searchTerm}%' OR email ILIKE '%${searchTerm}%' OR job ILIKE '%${searchTerm}%'`
+    );
   return rows;
 };
