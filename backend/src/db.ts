@@ -18,7 +18,7 @@ client.on('error', (error) => {
   process.exit(-1);
 });
 
-export const query = (text: string, params?) => client.query(text, params)
+export const query = (text: string) => client.query(text);
 
 
 
